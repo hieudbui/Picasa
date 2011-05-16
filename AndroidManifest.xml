@@ -32,5 +32,8 @@
 				android:resource="@xml/widget_info" />
 		</receiver>
 	</application>
+	
+	
+	
 	<uses-sdk android:minSdkVersion="8" />
 </manifest> 
