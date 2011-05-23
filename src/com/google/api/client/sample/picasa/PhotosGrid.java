@@ -1,6 +1,7 @@
 package com.google.api.client.sample.picasa;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpVersion;
@@ -29,19 +30,17 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 
-import com.google.api.client.googleapis.GoogleHeaders;
-import com.google.api.client.googleapis.GoogleTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.sample.picasa.AsyncImageLoader.ImageCallback;
 import com.google.api.client.sample.picasa.model.AlbumFeed;
 import com.google.api.client.sample.picasa.model.PhotoEntry;
 import com.google.api.client.sample.picasa.model.PicasaUrl;
-import com.google.api.client.sample.picasa.model.Util;
-import com.google.api.client.xml.atom.AtomParser;
 
 /**
  * A grid that displays a set of framed photos.
@@ -52,9 +51,6 @@ public class PhotosGrid extends Activity {
 
 	private static final int DIALOG_PROGRESS = 1;
 
-	private static HttpTransport transport;
-
-	private String authToken;
 	private String albumLink;
 
 	private GridView gridView;
@@ -71,14 +67,6 @@ public class PhotosGrid extends Activity {
 	private HttpClient httpClient;
 
 	public PhotosGrid() {
-		transport = GoogleTransport.create();
-		GoogleHeaders headers = (GoogleHeaders) transport.defaultHeaders;
-		headers.setApplicationName("Google-PicasaAndroidAample/1.0");
-		headers.gdataVersion = "2";
-		AtomParser parser = new AtomParser();
-		parser.namespaceDictionary = Util.NAMESPACE_DICTIONARY;
-		transport.addParser(parser);
-
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 		HttpProtocolParams.setContentCharset(params,
@@ -104,7 +92,6 @@ public class PhotosGrid extends Activity {
 		gridView = (GridView) findViewById(R.id.myGrid);
 
 		Intent intent = getIntent();
-		authToken = intent.getStringExtra("authToken");
 		albumLink = intent.getStringExtra("albumLink");
 
 		showDialog(DIALOG_PROGRESS);
@@ -148,17 +135,26 @@ public class PhotosGrid extends Activity {
 		e.printStackTrace();
 	}
 
+	public HttpTransport getTransport() {
+		return ((PicasaApplication) this.getApplication()).getTransport();
+	}
+
 	private void updateGridInUI() {
-		ImageAdapter adapter = new ImageAdapter(this, this.getPhotos(),
-				gridView);
+		ListAdapter adapter;
+		if (this.getPhotos() != null && this.getPhotos().size() > 0) {
+			adapter = new ImageAdapter(this, this.getPhotos(), gridView);
+		} else {
+			adapter = new ArrayAdapter<String>(this,
+					android.R.layout.simple_list_item_1,
+					new String[] { "no photos found" });
+		}
 		// ImageAdapter2 adapter = new ImageAdapter2(this);
 		gridView.setAdapter(adapter);
 	}
 
 	private void executeRefreshPhotos() throws IOException {
-		((GoogleHeaders) transport.defaultHeaders).setGoogleLogin(authToken);
-		AlbumFeed albumFeed = AlbumFeed.executeGet(transport, new PicasaUrl(
-				albumLink));
+		AlbumFeed albumFeed = AlbumFeed.executeGet(getTransport(),
+				new PicasaUrl(albumLink));
 		this.setPhotos(albumFeed.photos);
 	}
 
@@ -196,7 +192,7 @@ public class PhotosGrid extends Activity {
 		public ImageAdapter(Context c, List<PhotoEntry> photos,
 				GridView gridView) {
 			mContext = c;
-			this.photos = photos;
+			this.photos = photos != null ? photos : new ArrayList<PhotoEntry>();
 			this.gridView = gridView;
 			asyncImageLoader = new AsyncImageLoader(httpClient);
 		}
