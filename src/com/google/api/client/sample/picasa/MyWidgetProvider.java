@@ -114,7 +114,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
 				Bitmap image = getImageBitmap(url);
 				String fileName = "myImage.jpg";
 				FileOutputStream fileOutputStream = context.openFileOutput(
-						"myImage.jpg", Context. );
+						"myImage.jpg", Context.MODE_WORLD_READABLE );
 				BufferedOutputStream bos = new BufferedOutputStream(
 						fileOutputStream);
 				image.compress(CompressFormat.JPEG, 50, bos);
