@@ -20,8 +20,6 @@ public class AccountHelper {
 
 	private PicasaAndroidSample selectAlbumActivity;
 
-	private String authToken;
-
 	public AccountHelper(PicasaAndroidSample selectAccountActivity) {
 		this.selectAlbumActivity = selectAccountActivity;
 	}
@@ -54,10 +52,7 @@ public class AccountHelper {
 	}
 
 	public void gotAccount(final Account account) {
-		SharedPreferences settings = selectAlbumActivity.getSharedPreferences();
-		SharedPreferences.Editor editor = settings.edit();
-		editor.putString("accountName", account.name);
-		editor.commit();
+		saveAccountToSharedPreferences(account);
 		new Thread() {
 
 			@Override
@@ -96,13 +91,29 @@ public class AccountHelper {
 		}.start();
 	}
 
+	protected void saveAccountToSharedPreferences(final Account account) {
+		SharedPreferences settings = getSharedPreferences();
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putString("accountName", account.name);
+		editor.commit();
+	}
+
+	protected String getAccountNameFromSharedPreferences() {
+		SharedPreferences settings = getSharedPreferences();
+		String accountName = settings.getString("accountName", null);
+		return accountName;
+	}
+
+	protected SharedPreferences getSharedPreferences() {
+		return selectAlbumActivity.getSharedPreferences();
+	}
+
 	public Context getContext() {
 		return selectAlbumActivity;
 	}
 
 	public Account getAccountFromSharedPreferences() {
-		SharedPreferences settings = selectAlbumActivity.getSharedPreferences();
-		String accountName = settings.getString("accountName", null);
+		String accountName = getAccountNameFromSharedPreferences();
 		if (accountName != null) {
 			Account[] accounts = getAccounts();
 			int size = accounts.length;
@@ -119,26 +130,40 @@ public class AccountHelper {
 	public void gotAccount(boolean tokenExpired) {
 		AccountManager manager = AccountManager.get(getContext());
 		Account account = getAccountFromSharedPreferences();
+		String authToken = getAuthTokenFromSharedPreferences();
 		if (account != null) {
 			if (tokenExpired) {
-				manager.invalidateAuthToken("com.google", this.authToken);
+				manager.invalidateAuthToken("com.google", authToken);
 			}
 			gotAccount(account);
 		}
-		selectAlbumActivity.getSelectAccountHelper().showDialog();
+		// selectAlbumActivity.getSelectAccountHelper().showDialog();
 	}
 
 	private void handleException(Exception e) {
 		e.printStackTrace();
-		SharedPreferences settings = selectAlbumActivity.getSharedPreferences();
+		SharedPreferences settings = getSharedPreferences();
 		boolean log = settings.getBoolean("logging", false);
 		if (log) {
 			Log.e(TAG, e.getMessage(), e);
 		}
 	}
 
+	protected void saveAuthTokenToSharedPreferences(String authToken) {
+		SharedPreferences settings = getSharedPreferences();
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putString("authToken", authToken);
+		editor.commit();
+	}
+
+	protected String getAuthTokenFromSharedPreferences() {
+		SharedPreferences settings = getSharedPreferences();
+		String accountName = settings.getString("authToken", null);
+		return accountName;
+	}
+
 	private void authenticatedClientLogin(String authToken) {
-		this.authToken = authToken;
+		saveAuthTokenToSharedPreferences(authToken);
 		((GoogleHeaders) selectAlbumActivity.getTransport().defaultHeaders)
 				.setGoogleLogin(authToken);
 		selectAlbumActivity.getAlbumHelper().executeRefreshAlbums();

@@ -16,6 +16,7 @@
 
 package com.google.api.client.sample.picasa;
 
+import android.accounts.Account;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -90,7 +91,7 @@ public final class PicasaAndroidSample extends ListActivity {
 
 		super.onCreate(savedInstanceState);
 		SharedPreferences settings = this.getSharedPreferences();
-		setLogging(settings.getBoolean("logging", false));
+		setLogging(settings.getBoolean("logging", true));
 		getListView().setTextFilterEnabled(true);
 		registerForContextMenu(getListView());
 		selectAccountHelper.showDialog();
@@ -123,6 +124,7 @@ public final class PicasaAndroidSample extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Log.d(TAG, "position=" + position + " id=" + id);
 		AlbumEntry album = albumHelper.getAlbums().get(position);
+		albumHelper.saveAlbumToSharedPreferences(album);
 		String feedLink = album.getFeedLink();
 		Intent intent = new Intent(this, PhotosGrid.class);
 		intent.putExtra("albumLink", feedLink);

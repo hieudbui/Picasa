@@ -1,13 +1,12 @@
 package com.google.api.client.sample.picasa;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
-public class AccountHelperForWidget extends AccountHelper {
+public class AlbumHelperForWidget extends AlbumHelper {
 
 	PicasaApplication application;
 
-	public AccountHelperForWidget(PicasaApplication application) {
+	public AlbumHelperForWidget(PicasaApplication application) {
 		super(null);
 		this.application = application;
 	}
@@ -15,9 +14,4 @@ public class AccountHelperForWidget extends AccountHelper {
 	protected SharedPreferences getSharedPreferences() {
 		return application.getSharedPreferences();
 	}
-
-	public Context getContext() {
-		return application;
-	}
-
 }

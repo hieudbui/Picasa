@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">Picasa Sample</string>
     <string name="loading">Loading...</string>
+    <string name="widget_select_album">Album not selected.  Click below to select an album</string>
+    <string name="Go">Go</string>
 </resources>

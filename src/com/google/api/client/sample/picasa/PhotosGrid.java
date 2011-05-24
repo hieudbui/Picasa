@@ -63,24 +63,7 @@ public class PhotosGrid extends Activity {
 		}
 	};
 
-	private ClientConnectionManager connManager;
-	private HttpClient httpClient;
-
 	public PhotosGrid() {
-		HttpParams params = new BasicHttpParams();
-		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-		HttpProtocolParams.setContentCharset(params,
-				HTTP.DEFAULT_CONTENT_CHARSET);
-
-		HttpProtocolParams.setUseExpectContinue(params, true);
-
-		SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", PlainSocketFactory
-				.getSocketFactory(), 80));
-		registry.register(new Scheme("https", SSLSocketFactory
-				.getSocketFactory(), 443));
-		connManager = new ThreadSafeClientConnManager(params, registry);
-		httpClient = new DefaultHttpClient(connManager, params);
 	}
 
 	@Override
@@ -194,7 +177,7 @@ public class PhotosGrid extends Activity {
 			mContext = c;
 			this.photos = photos != null ? photos : new ArrayList<PhotoEntry>();
 			this.gridView = gridView;
-			asyncImageLoader = new AsyncImageLoader(httpClient);
+			asyncImageLoader = new AsyncImageLoader();
 		}
 
 		public int getCount() {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -35,6 +36,41 @@ public class AlbumHelper {
 		String[] photoNames;
 		PicasaUrl url = PicasaUrl.relativeToRoot("feed/api/user/default");
 
+	}
+
+	protected SharedPreferences getSharedPreferences() {
+		return selectAlbumActivity.getSharedPreferences();
+	}
+
+	public void saveAlbumToSharedPreferences(final AlbumEntry album) {
+		SharedPreferences settings = getSharedPreferences();
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putString("albumFeedLink", album.getFeedLink());
+		editor.commit();
+	}
+
+	public String getAlbumFromSharedPreferences() {
+		SharedPreferences settings = getSharedPreferences();
+		String albumFeedLink = settings.getString("albumFeedLink", null);
+		return albumFeedLink;
+	}
+
+	public void saveImageLocationToSharedPreferences(int location) {
+		SharedPreferences settings = getSharedPreferences();
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putInt("imageLocation", location);
+		editor.commit();
+	}
+
+	public int getImageLocationFromSharedPreferences() {
+		SharedPreferences settings = getSharedPreferences();
+		return settings.getInt("imageLocation", 0);
+	}
+
+	protected String getAccountNameFromSharedPreferences() {
+		SharedPreferences settings = getSharedPreferences();
+		String accountName = settings.getString("accountName", null);
+		return accountName;
 	}
 
 	public List<AlbumEntry> getAlbums() {
