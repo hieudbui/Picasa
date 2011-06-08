@@ -2,6 +2,8 @@ package com.google.api.client.sample.picasa;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -109,7 +111,7 @@ public class AccountHelper {
 	}
 
 	public Context getContext() {
-		return selectAlbumActivity;
+		return selectAlbumActivity.getApplicationContext();
 	}
 
 	public Account getAccountFromSharedPreferences() {

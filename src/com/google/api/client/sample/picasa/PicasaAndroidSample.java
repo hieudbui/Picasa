@@ -16,9 +16,12 @@
 
 package com.google.api.client.sample.picasa;
 
-import android.accounts.Account;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -120,11 +123,34 @@ public final class PicasaAndroidSample extends ListActivity {
 		contextMenuHelper.onCreateContextMenu(menu, v, menuInfo);
 	}
 
+	private void updateWidget() {
+		AppWidgetManager appWidgetManager = AppWidgetManager
+				.getInstance(getApplicationContext());
+		ComponentName componentName = new ComponentName(
+				getApplicationContext(), MyWidgetProvider.class);
+		int[] ids = appWidgetManager.getAppWidgetIds(componentName);
+		Intent updateWidget = new Intent();
+		updateWidget.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+		updateWidget.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+		getApplicationContext().sendBroadcast(updateWidget);
+	}
+
+	private void updateWidget2() {
+		Intent intent = new Intent(MyWidgetProvider.UPDATE_WIDGET);
+		PendingIntent pending = PendingIntent.getBroadcast(this, 0, intent, 0);
+		try {
+			pending.send();
+		} catch (CanceledException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Log.d(TAG, "position=" + position + " id=" + id);
 		AlbumEntry album = albumHelper.getAlbums().get(position);
 		albumHelper.saveAlbumToSharedPreferences(album);
+		updateWidget();
 		String feedLink = album.getFeedLink();
 		Intent intent = new Intent(this, PhotosGrid.class);
 		intent.putExtra("albumLink", feedLink);

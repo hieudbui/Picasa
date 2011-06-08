@@ -1,5 +1,6 @@
 package com.google.api.client.sample.picasa;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Application;
@@ -18,7 +19,7 @@ public class PicasaApplication extends Application {
 
 	private HttpTransport transport;
 
-	private List<PhotoEntry> photos;
+	private List<PhotoEntry> photos = new ArrayList<PhotoEntry>();
 
 	@Override
 	public void onCreate() {
@@ -35,8 +36,12 @@ public class PicasaApplication extends Application {
 	public void onTerminate() {
 	}
 
-	public void setPhotos(List<PhotoEntry> photos) {
-		this.photos = photos;
+	public void clearPhotos() {
+		this.photos.clear();
+	}
+
+	public void addPhotos(List<PhotoEntry> photos) {
+		this.photos.addAll(photos);
 	}
 
 	public List<PhotoEntry> getPhotos() {

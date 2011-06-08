@@ -146,7 +146,9 @@ public class PhotosGrid extends Activity {
 	}
 
 	public void setPhotos(List<PhotoEntry> photos) {
-		((PicasaApplication) this.getApplication()).setPhotos(photos);
+		Log.d(TAG, "photos size: " + photos.size());
+		((PicasaApplication) this.getApplication()).clearPhotos();
+		((PicasaApplication) this.getApplication()).addPhotos(photos);
 	}
 
 	@Override
