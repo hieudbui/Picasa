@@ -9,7 +9,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
-import android.app.Application;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
