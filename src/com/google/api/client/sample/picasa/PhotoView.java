@@ -52,6 +52,7 @@ public class PhotoView extends Activity {
 	PointF start = new PointF();
 	PointF mid = new PointF();
 	float oldDist = 1f;
+	Toast msg = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,8 +63,7 @@ public class PhotoView extends Activity {
 		Intent intent = getIntent();
 		position = intent.getIntExtra("position", 0);
 
-		Toast msg = Toast.makeText(PhotoView.this, "Loading...",
-				Toast.LENGTH_LONG);
+		msg = Toast.makeText(this, "Loading...", Toast.LENGTH_LONG);
 		msg.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
 		msg.show();
 		asyncLoad(position);
@@ -156,11 +156,11 @@ public class PhotoView extends Activity {
 			@Override
 			public void run() {
 				try {
-					loadImage();
+					final Bitmap bitmap = loadImage();
+					hideToast();
 					imageView.post(new Runnable() {
-
 						public void run() {
-							refreshImage(position);
+							setImage(position, bitmap);
 						}
 					});
 				} catch (Exception e) {
@@ -181,9 +181,18 @@ public class PhotoView extends Activity {
 		return getImageBitmap(imageUrl);
 	}
 
-	public void refreshImage(int position) {
+	public void setImage(int position, Bitmap image) {
 		this.position = position;
-		imageView.setImageBitmap(loadImage());
+		imageView.setImageBitmap(image);
+	}
+
+	public void hideToast() {
+		if (msg != null) {
+			Log.d(TAG, "Canceling toast message");
+			msg.cancel();
+		} else {
+			Log.d(TAG, "Toast message not found");
+		}
 	}
 
 	private PhotoEntry getPhotoEntry(int position) {
@@ -206,14 +215,14 @@ public class PhotoView extends Activity {
 	private Bitmap getImageBitmap(String url) {
 		Bitmap bm = null;
 		InputStream is = null;
-		BufferedInputStream bis = null;
+		FlushedInputStream bis = null;
 		try {
 			URL aURL = new URL(url);
 			URLConnection conn = aURL.openConnection();
 			conn.setConnectTimeout(1000);
 			conn.connect();
 			is = conn.getInputStream();
-			bis = new BufferedInputStream(is);
+			bis = new FlushedInputStream(is);
 			bm = BitmapFactory.decodeStream(bis);
 			// if (bm == null)
 			// {
@@ -268,6 +277,12 @@ public class PhotoView extends Activity {
 		Log.d(TAG, "on pause called");
 	}
 
+	public void onDestroy() {
+		super.onDestroy();
+		Log.d(TAG, "on destroy called");
+		imageView.setImageBitmap(null);
+	}
+
 	class MyGestureDetector extends SimpleOnGestureListener {
 		private static final int SWIPE_MIN_DISTANCE = 30;
 		private static final int SWIPE_MAX_OFF_PATH = 250;
@@ -288,26 +303,25 @@ public class PhotoView extends Activity {
 						&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 					Log.d(TAG, "right to left swipe");
 					if (position < getPhotos().size() - 1) {
-						Toast msg = Toast.makeText(PhotoView.this,
-								"Loading...", Toast.LENGTH_LONG);
+						msg = Toast.makeText(PhotoView.this, "Loading...",
+								Toast.LENGTH_LONG);
 						msg.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
 						msg.show();
+						Log.d(TAG, "toast message shown");
 						asyncLoad(position + 1);
-						// refreshImage(position + 1);
-						// msg.cancel();
 					}
 					// // Logic
 				} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
 						&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 					Log.d(TAG, "left to right swipe");
 					if (position > 0) {
-						Toast msg = Toast.makeText(PhotoView.this,
-								"Loading...", Toast.LENGTH_LONG);
+						msg = Toast.makeText(PhotoView.this, "Loading...",
+								Toast.LENGTH_LONG);
 						msg.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
 						msg.show();
+						Log.d(TAG, "toast message shown");
 						asyncLoad(position - 1);
-						// refreshImage(position - 1);
-						// msg.cancel();
+
 					}
 				}
 			} catch (Exception e) {

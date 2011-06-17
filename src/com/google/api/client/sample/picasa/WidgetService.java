@@ -259,14 +259,14 @@ public class WidgetService extends Service {
 	private Bitmap getImageBitmap(String url) {
 		Bitmap bm = null;
 		InputStream is = null;
-		BufferedInputStream bis = null;
+		FlushedInputStream bis = null;
 		try {
 			URL aURL = new URL(url);
 			URLConnection conn = aURL.openConnection();
 			conn.setConnectTimeout(1000);
 			conn.connect();
 			is = conn.getInputStream();
-			bis = new BufferedInputStream(is);
+			bis = new FlushedInputStream(is);
 			bm = BitmapFactory.decodeStream(bis);
 			// if (bm == null)
 			// {
