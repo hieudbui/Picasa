@@ -256,6 +256,7 @@ public class WidgetService extends Service {
 		// getApplicationContext(), MyWidgetProvider.class), views);
 	}
 
+	
 	private Bitmap getImageBitmap(String url) {
 		Bitmap bm = null;
 		InputStream is = null;
