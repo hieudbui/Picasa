@@ -61,11 +61,8 @@ public class PhotoView extends Activity {
 		setContentView(R.layout.photo);
 		imageView = (ImageView) findViewById(R.id.photo);
 		Intent intent = getIntent();
-		position = intent.getIntExtra("position", 0);
 
-		msg = Toast.makeText(this, "Loading...", Toast.LENGTH_LONG);
-		msg.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
-		msg.show();
+		position = intent.getIntExtra("position", 0);
 		asyncLoad(position);
 
 		gestureDetector = new GestureDetector(new MyGestureDetector());
@@ -151,16 +148,29 @@ public class PhotoView extends Activity {
 		return FloatMath.sqrt(x * x + y * y);
 	}
 
-	private void asyncLoad(final int position) {
+	private void asyncLoad(int position) {
+		Log.d(TAG, "position: " + position);
+		this.position = position;
 		new Thread() {
 			@Override
 			public void run() {
 				try {
-					final Bitmap bitmap = loadImage();
-					hideToast();
 					imageView.post(new Runnable() {
 						public void run() {
-							setImage(position, bitmap);
+							hideToast();
+							msg = Toast.makeText(PhotoView.this, "Loading...",
+									Toast.LENGTH_LONG);
+							msg.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0,
+									0);
+							msg.show();
+							Log.d(TAG, "toast message shown");
+						}
+					});
+					final Bitmap bitmap = loadImage();
+					imageView.post(new Runnable() {
+						public void run() {
+							hideToast();
+							setImage(bitmap);
 						}
 					});
 				} catch (Exception e) {
@@ -175,18 +185,18 @@ public class PhotoView extends Activity {
 		// TODO
 		// can we cache the image for faster performance?
 		// Can we get a bitmap that is sized to the current device?
-		Log.d(TAG, photoEntry.mediaGroup.mediaContent.url);
+		Log.d(TAG, "loading url: " + photoEntry.mediaGroup.mediaContent.url
+				+ " at position: " + position);
 		// String imageUrl=photoEntry.mediaGroup.getLargeThumbNail().url;
 		String imageUrl = photoEntry.mediaGroup.mediaContent.url;
 		return getImageBitmap(imageUrl);
 	}
 
-	public void setImage(int position, Bitmap image) {
-		this.position = position;
+	public void setImage(Bitmap image) {
 		imageView.setImageBitmap(image);
 	}
 
-	public void hideToast() {
+	public synchronized void hideToast() {
 		if (msg != null) {
 			Log.d(TAG, "Canceling toast message");
 			msg.cancel();
@@ -286,7 +296,7 @@ public class PhotoView extends Activity {
 	class MyGestureDetector extends SimpleOnGestureListener {
 		private static final int SWIPE_MIN_DISTANCE = 30;
 		private static final int SWIPE_MAX_OFF_PATH = 250;
-		private static final int SWIPE_THRESHOLD_VELOCITY = 500;
+		private static final int SWIPE_THRESHOLD_VELOCITY = 1500;
 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
@@ -303,11 +313,6 @@ public class PhotoView extends Activity {
 						&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 					Log.d(TAG, "right to left swipe");
 					if (position < getPhotos().size() - 1) {
-						msg = Toast.makeText(PhotoView.this, "Loading...",
-								Toast.LENGTH_LONG);
-						msg.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
-						msg.show();
-						Log.d(TAG, "toast message shown");
 						asyncLoad(position + 1);
 					}
 					// // Logic
@@ -315,11 +320,6 @@ public class PhotoView extends Activity {
 						&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 					Log.d(TAG, "left to right swipe");
 					if (position > 0) {
-						msg = Toast.makeText(PhotoView.this, "Loading...",
-								Toast.LENGTH_LONG);
-						msg.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
-						msg.show();
-						Log.d(TAG, "toast message shown");
 						asyncLoad(position - 1);
 
 					}

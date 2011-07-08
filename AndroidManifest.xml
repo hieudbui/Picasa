@@ -23,7 +23,7 @@
 		</activity>
 		<activity android:name=".PhotosGrid">
 		</activity>
-		<activity android:name=".PhotoView">
+		<activity android:name=".PhotoView" android:screenOrientation="sensor">
 		</activity>
 		<receiver android:name=".MyWidgetProvider">
 			<intent-filter>

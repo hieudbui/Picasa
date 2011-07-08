@@ -108,8 +108,18 @@ public class PhotosGrid extends Activity {
 	}
 
 	public void onPause() {
-		super.onResume();
+		super.onPause();
 		Log.d(TAG, "on pause called");
+	}
+
+	public void onStop() {
+		super.onStop();
+		Log.d(TAG, "on stop called");
+	}
+
+	public void onDestroy() {
+		super.onDestroy();
+		Log.d(TAG, "on destroy called");
 	}
 
 	private void handleException(Exception e) {
